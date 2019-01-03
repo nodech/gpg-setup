@@ -19,17 +19,22 @@
     - [Add User IDs and subkeys](#add-user-ids-and-subkeys)
       - [Add user ids](#add-user-ids)
       - [Add Subkeys](#add-subkeys)
-      - [Wrapping up](#wrapping-up)
-      - [Sign keys](#sign-keys)
+    - [Wrapping up](#wrapping-up)
+    - [Sign keys](#sign-keys)
     - [Move your master key to safe place](#move-your-master-key-to-safe-place)
       - [Export keys to external device](#export-keys-to-external-device)
       - [Leave subkeys only](#leave-subkeys-only-sup4perfect-keypair-mastersup)
     - [Revocation Certificate for a key](#revocation-certificate-for-a-key)
     - [Backing up](#backing-up)
+  - [Migrating to new keys](#migrating-to-new-keys)
+    - [Reasons](#reasons)
+    - [Steps](#steps)
+    - [Scenarios](#scenarios)
   - [Web of trust](#web-of-trust)
     - [verifying keys](#verifying-keys)
     - [Key servers](#key-servers)
-  - [References](#references)
+      - [Key servers and privacy](#key-servers-and-privacy)
+  - [References:](#references)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -146,6 +151,7 @@ default-preference-list H10 H9 H8 H11 H2 S9 S8 S7 S3 Z2 Z3 Z1 Z0
 ## passphrase agent config...
 
 ## default keyring setup...
+#default-key Fingerprint
 
 ## primary keyring...
 
@@ -454,7 +460,7 @@ ssb  rsa4096/0xFC39DAABD3F30C32
 
 Then generate key for encryption.
 
-#### Wrapping up
+### Wrapping up
 After you are done generating your keys, you can double check and see if everything
 is setup as you wanted:
 
@@ -484,7 +490,7 @@ gpg> save
 ```
 And updates will be written to the disk.
 
-#### Sign keys
+### Sign keys
 We also want to make sure we have `self-signed` our user ids, so we don't get
 DOSed<sup>[[3]][always-sign]</sup>, so we can only verify Fingerprint of the keys
 and be assured ids have not been substituted.
@@ -517,6 +523,9 @@ you can see that UIDs have been signed as well.
 After we have finished all key generation, we can store our master key to someplace safe.
 And remove it from our device.
 
+*Note: After moving master private key to external device you can change the passphrase again
+so you don't use same passphrase for your master key and everyday use keys.*
+
 #### Export keys to external device
 You can have your master key on airgapped computer or export it
 to secure place and only load it using strict environments, e.g. No internet liveusb and etc.
@@ -548,6 +557,50 @@ You can use encrypted external devices that are not used for anything else,
 Or print them on paper and store somewhere safe.
 *Note: It will be error-prone to type that key back in.*
 
+## Migrating to new keys
+### Reasons
+There are several reasons you might want to move to new keys:
+  1. You lost your master key or forgot the passphrase.
+  2. You think your master key might be compromised. (or know for sure)
+  3. You want to change structure or algorithms of your keys.
+  4. other reasons.?
+
+### Steps
+Steps<sup>[[5]][futureboy-migrating]</sup> (See scenarios below):
+  1. Generate new keys and revocation certificate.
+  2. Make new key default key. (Change gpg.conf default-key)
+  3. Sign new key with old key. (`gpg --default-key oldkeyid newkeyid`)
+     - `gpg -u oldkeyid --edit-key newkeyid`
+     - `gpg> sign`
+  4. (opt) Trust old keys signatures.
+     - `gpg --edit-key` (we already changed default key)
+     - `gpg> trust`
+  5. Communicate your update to your friends with signed message, using old key.
+  6. Revoke old key -- If people send you encrypted data and there's a chance
+they don't know that key was revoked (e.g. they don't update keys from key servers.),
+you wont be able to decrypt that data, so you might want to keep it alive for some time,
+and communicate key updates well.
+  7. Disable your old keys, because some services might still use first secret key
+that is available in keychain.
+     - `gpg --edit-key keyid`
+     - `gpg> disable`
+
+### Scenarios
+If you lost or your key got compromised you can't use master key anymore and you **must**
+revoke key right away. Unfortunately, you will have to start creating Web of Trust and prove
+your identity from scratch.
+  - `gpg --import certificate.rev`  
+
+If reason is #1(lost), you can't do step #3 (sign new key) and you have to communicate
+that you messed up, doing all other steps.
+
+But if your key got compromised(#2), you should not do #3 and #4, you **must** revoke
+key right away and be done with it. If someone has your key, they can sign new keys
+as well as do everything else basically. (It's pretty hard to get it compromised when ssd
+is encrypted and key is encrypted -- but still possible)
+
+In other cases you can follow all the steps.
+
 ## Web of trust
 ### verifying keys
 Your PGP key can be used to prove your identity, but key itself no
@@ -565,6 +618,8 @@ If someone trusts you enough, they can trust your signature and that you have ve
 person, creating web of trust.
 
 ### Key servers
+> Don't trust, verify
+
 Key servers provide a way to share and update keys. Even though this does not provide
 additional security, it's necessary to have in order to easily get updates on key states.
 There are couple of key servers out there and they sync information with each other.
@@ -581,6 +636,11 @@ it will get merged with existing information, so you need to always revoke keys 
 either compromised or lost. (not using anymore)
   - Before sending encrypted information to someone else or verifying signatures 
   fetch updates to those keys, so you can get revocation information in time. (`gpg --refresh-keys`)
+
+#### Key servers and privacy
+In order to have privacy with key refreshes, so you don't reveal all the relationships you have
+at once, you can use tools like `parcimonie` daemon that will slowly refresh keys over `tor`
+(Slowly in order not to leak your identity)
 
 ## References:
 *Note: some of these links use `gpg v1` and flags, outputs or key choices might not match.*
@@ -614,3 +674,4 @@ either compromised or lost. (not using anymore)
 [perfect-keypair]: https://alexcabal.com/creating-the-perfect-gpg-keypair
 [perfect-keypair-master]: https://alexcabal.com/creating-the-perfect-gpg-keypair#transforming-your-master-keypair-into-your-laptop-keypair
 [gpg-privacy-handbook]: https://www.gnupg.org/gph/en/manual.html
+[futureboy-migrating]: https://futureboy.us/pgp.html#Migrating
