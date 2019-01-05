@@ -15,6 +15,7 @@
   - [Create Keypairs](#create-keypairs)
       - [Small summary of steps for key generation](#small-summary-of-steps-for-key-generation)
     - [Why do we need subkeys](#why-do-we-need-subkeys-sup2debiansup)
+    - [Expiration date](#expiration-date)
     - [Generating Master Key](#generating-master-key)
     - [Add User IDs and subkeys](#add-user-ids-and-subkeys)
       - [Add user ids](#add-user-ids)
@@ -34,7 +35,8 @@
     - [verifying keys](#verifying-keys)
     - [Key servers](#key-servers)
       - [Key servers and privacy](#key-servers-and-privacy)
-  - [References:](#references)
+  - [References](#references)
+  - [TODO](#todo)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -678,7 +680,7 @@ at once, you can use tools like `parcimonie` daemon that will slowly refresh key
   - [GPG Tutorial][futureboy]
   - [Generating the perfect gpg keypair][perfect-keypair]
 
-## To Do:
+## TODO:
   - Email and gpg best practices. (maybe include several tools with popular mail clients)
   - Importing Keys.
     - importing migrated keys.
