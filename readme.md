@@ -692,30 +692,31 @@ There might be different circumstances for each import:
   4. Email contact only
   5. No way to contact ?
 
-5. Hopefull last one will never happen, because you can't verify that keys belong
+Verification for each:  
+5 - Hopefull last one will never happen, because you can't verify that keys belong
 to the person it claims to.
 
-4. If we receive email encrypted to our public key(whether other party verified it or not),
+4 - If we receive email encrypted to our public key(whether other party verified it or not),
 we don't have any proof that's the person we are talking to. Anyone can send encrypted
 email to us, also email can be compromised or mail service might not check sender that well.
 If we don't have this persons keys verified we can't even check anything. (Signs or encryptions)
 
-3. Even though this is far from perfect, if there are good sources where you can verify
+3 - Even though this is far from perfect, if there are good sources where you can verify
 fingerprint and the key, it should be relatively safe to import the key. (e.g. Keybase + github)
 Even though, verifying them in person is recommended. It's probably good idea to reduce trust
 level in this case.
 
-2. if you have common link in trust chains (Web of trust), than you can assert
+2 - if you have common link in trust chains (Web of trust), than you can assert
 that it was verified by this common person. Unfortunately, someone can sign other peoples
 keys without veriying, so you need to be careful who you are getting linked with. If you
 don't trust this common link (It should not be the link in the first place), you better verify
 it yourself somehow.
 
-1. If you can meet in person, that's the best case scenario. You both can exchange fingerprints of
+1 - If you can meet in person, that's the best case scenario. You both can exchange fingerprints of
 each others keys(Maybe print it on paper and exchange papers :)) and then verify it against
 downloaded pubkey.
 
-*If there are many of you, you can have [Keysigning Party][futureboy-keysigning-party]*
+*If there are many of you, you can have [Keysigning Party][futureboy-keysigning-party]*.
 
 
 ### Sign Keys
