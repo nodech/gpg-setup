@@ -107,7 +107,10 @@ We need to make sure GPG uses right preferences for us.
 
 ### Configuration File
 Things we will be configuring are cipher, digest, compression and general options.  
-what will be preferred when communicating with others. Listing and other configs.
+what will be preferred when communicating with others. Listing and other configs.  
+This file that is used by default is `$HOME/.gnupg/gpg.conf`, if `GNUPGHOME` env
+variable is set then `gpg.conf` is expected at `$GNUPGHOME/gpg.conf`.
+(See [Testing/sandboxing](#testingsandboxing))
 
 You can check list of configurations on [gnupg documentation options][gnupg-configs]
 
@@ -171,6 +174,7 @@ respect gpg.conf options.*
 ## Testing/sandboxing
 Before generating actual keys, you might want to experiment with setups.
 You can use GNUPGHOME env variable to different location and generate keys there.
+It will generate keyrings and read configuration file from that directory.
 
 ## Create Keypairs
 Keypairs can be generated and managed multiple ways.
@@ -234,6 +238,16 @@ You only need to use master key only in few cases:
 (Because all these operations need signatures from master key.)
 
 > Each link of the Web of Trust is an endorsement of the binding between a public key and a user ID.
+
+### Expiration date
+You might be tempted to have keys that don't expire, but expiration
+dates can help you if you lose keys as well as backup of the master key
+and revocation certificate.
+(But losing those is more problematic, so take good care of backed up keys
+and certificates)
+You can change expiration date on your keys, so you can choose small
+expiration date. (Maybe setup calendar even to remind you to renew keys)
+E.g. 2yrs or less should be good enough.
 
 ### Generating Master Key
 Our master as well as other subkes
@@ -581,7 +595,7 @@ they don't know that key was revoked (e.g. they don't update keys from key serve
 you wont be able to decrypt that data, so you might want to keep it alive for some time,
 and communicate key updates well.
   7. Disable your old keys, because some services might still use first secret key
-that is available in keychain.
+that is available in the keychain.
      - `gpg --edit-key keyid`
      - `gpg> disable`
 
@@ -621,8 +635,12 @@ person, creating web of trust.
 > Don't trust, verify
 
 Key servers provide a way to share and update keys. Even though this does not provide
-additional security, it's necessary to have in order to easily get updates on key states.
-There are couple of key servers out there and they sync information with each other.
+additional security, it's useful to have in order to easily get updates on key states.
+There are couple of key servers out there and they sync information with each other,
+most likely your gpg comes with some key servers configured, you can add multiple
+key servers so you have backup connections if that server goes down. Alternatively
+you could use keyservers pool (e.g.: https://sks-keyservers.net/), that removes
+failed nodes and maintains several servers.
 
 There are several things to keep in mind when using key servers:
   - When fetching keys from public key servers (`gpg --search-keys names`)
@@ -640,7 +658,7 @@ either compromised or lost. (not using anymore)
 #### Key servers and privacy
 In order to have privacy with key refreshes, so you don't reveal all the relationships you have
 at once, you can use tools like `parcimonie` daemon that will slowly refresh keys over `tor`
-(Slowly in order not to leak your identity)
+(Slowly in order not to leak your identity).
 
 ## References:
 *Note: some of these links use `gpg v1` and flags, outputs or key choices might not match.*
@@ -659,6 +677,17 @@ at once, you can use tools like `parcimonie` daemon that will slowly refresh key
   - [GnuPG Key Management][gpg-key-management]
   - [GPG Tutorial][futureboy]
   - [Generating the perfect gpg keypair][perfect-keypair]
+
+## To Do:
+  - Email and gpg best practices. (maybe include several tools with popular mail clients)
+  - Importing Keys.
+    - importing migrated keys.
+  - Verification Process.
+  - Signing and Encryption best practices.
+  - Authentication keys
+    - Authentication with OpenSSH
+  - Exploring existing keys and pgp packets.
+
 
 [gnupg]: https://www.gnupg.org/
 [gnupg-docs]:  https://www.gnupg.org/documentation/
