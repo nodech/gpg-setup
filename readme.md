@@ -21,7 +21,7 @@
       - [Add user ids](#add-user-ids)
       - [Add Subkeys](#add-subkeys)
     - [Wrapping up](#wrapping-up)
-    - [Sign keys](#sign-keys)
+    - [Sign your own keys](#sign-your-own-keys)
     - [Move your master key to safe place](#move-your-master-key-to-safe-place)
       - [Export keys to external device](#export-keys-to-external-device)
       - [Leave subkeys only](#leave-subkeys-only-sup4perfect-keypair-mastersup)
@@ -31,8 +31,10 @@
     - [Reasons](#reasons)
     - [Steps](#steps)
     - [Scenarios](#scenarios)
-  - [Web of trust](#web-of-trust)
-    - [verifying keys](#verifying-keys)
+  - [Importing keys](#importing-keys)
+    - [Web of trust](#web-of-trust)
+    - [Verifying keys](#verifying-keys)
+    - [Sign Keys](#sign-keys)
     - [Key servers](#key-servers)
       - [Key servers and privacy](#key-servers-and-privacy)
   - [References](#references)
@@ -63,7 +65,17 @@ you can have different setup with different algorithms and many other variations
   - Use HW devices.
 
 ## Definitions
-  - `Master Key` or `Primary Key` - First key that we generate. 
+  - `Master Key` or `Primary Key` - First keypair that we generate. 
+  - `Subkey` - is key pair which is sub-component of another key.
+  - `Master Key` and `Subkey` - Master key is the top level key, has certifying capability
+and serves as main key, where as subkeys are sub-components of primary keys. *Note: subkey
+is not actually derived from the Master Key and has no technical differencies.*
+  - `Key Certificate` - Simply: Certificate technically is a signature, but it signs other keys -
+extending its trust to other keys. E.g. Master key certifying it's sub keys provides proof they are
+indeed associated with it. Where signing others pubkeys means that you trust this other key to
+be owned by the person it claims to be. *Also see Certificate Authorities (TLS).*
+  - `Signing` - applies to arbitrary data from your signing key. (By default Master key is both:
+Certifying and Signing key)
 
 #### Algorithm List
 
@@ -506,13 +518,15 @@ gpg> save
 ```
 And updates will be written to the disk.
 
-### Sign keys
+### Sign your own keys
 We also want to make sure we have `self-signed` our user ids, so we don't get
 DOSed<sup>[[3]][always-sign]</sup>, so we can only verify Fingerprint of the keys
 and be assured ids have not been substituted.
 *Note: This does not make keys more valid as attacker can generate everything
 from scratch and self-sign it's keys, You still need to [verify](#verify)
 your key correctly.*
+
+*Note 2: This might have been done automatically. Double check.*
 
 You can check signatures on key using `gpg --checks-sigs [fingerprint]`,
 e.g.
@@ -534,6 +548,16 @@ gpg: 4 good signatures
 
 Exclamation marks following sig mean that signature check passed. Also
 you can see that UIDs have been signed as well.
+
+We are using separate Signing key in this setup, so we need to take care of `cross-signing`
+<sup>[[5]][gpg-cross-certify]</sup> as well.  
+Even though it might have been already done automatically by gpg, it's good to double check.
+With `cross-sign` we sign our primary with signing key, and prove that signing key belongs to us.
+Even though others can't sign new messages using our signing subkey, they can attach subkeys
+to their primary keys and pretend they own that subkey. This will prevent that from happening:
+  - `gpg --edit-key`
+  - `gpg> cross-certify`
+
 
 ### Move your master key to safe place
 After we have finished all key generation, we can store our master key to someplace safe.
@@ -617,21 +641,93 @@ is encrypted and key is encrypted -- but still possible)
 
 In other cases you can follow all the steps.
 
-## Web of trust
-### verifying keys
+**Note: if your keys got compromised, it gives full capabilities to the attacker.
+Attack will also be able to decrypt all your past messages as well as new ones encrypted
+to the same encryption keys. As well as sign new keys or messages and so on.**
+
+## Importing keys
+If you want to communicate with someone or make sure you can verify messages
+signed by them, you need to import keys necessary
+
+### Web of trust
+Your key is your online identity that people want to use for secure and/or private
+communication, You download and verify others public keys. Whenever you have verified
+someone elses public key, you can sign their keys and publish it to the keyservers.
+This way all verified keys will be linked with signatures creating web of trust.
+This will make it easier to fetch new key keys when you have common links in
+the web of trust.  
+You can also sign keys locally without publishing them.
+(See [Sign keys](#sign-keys))
+
+### Verifying keys
 Your PGP key can be used to prove your identity, but key itself no
 matter what you put in meta data (Name, email, comment) does not really provide
-much information as anyone can use same information and create another key pair.
+much information as anyone can use same information and create another key pair
+**even upload to the key server**.
 If you want to make sure that Key belongs to someone you need to personally
 verify that key is owned by some person. Even though `0xlong` will provide 64bit
 hex, that is easy to generate and collide. So when verifying keys it **highly** recommended to
 check keys using fingerprint. (*Note: KeyID is last part of the Fingerprint, either
 64bits or 32bits*)
-After you have verified other persons key you can assign trust level, depending
-how much you trust this person to take care of keys or how much you have verified it.
-Then sign the key using your certifying key and update key servers.
-If someone trusts you enough, they can trust your signature and that you have verifyied other
-person, creating web of trust.
+
+Steps for importing:
+  - Get the keys
+    - If we contacted first and we have the fingerprint we can get it from
+key servers `gpg --recv-key '<fingerprint>'`.
+    - We can also search by userid `gpg --search-keys`.
+    - Receive encrypted email on your encryption key with self-signed key attached,
+if other party has already verified your keys.
+  - Now we need to verify that the key we received is correct indeed. Best possible option
+is to meet in person and verify fingerprint that way, or use some way of communication that
+is hard to hijack (this is getting harder every day :))
+  - Once you have verified the key is correct, you can assign `trust` level depending
+how much you trust this persons ability to take care of the keys :))).
+
+Note: Similar procedure applies to Signal, you need to verify safety number in person.
+
+There might be different circumstances for each import:
+  1. We can personally contact other person.
+  2. We can not contact the other person but we have same trusted link in web of trust.
+  3. Keys are listed by this person on many online services.
+  4. Email contact only
+  5. No way to contact ?
+
+5. Hopefull last one will never happen, because you can't verify that keys belong
+to the person it claims to.
+
+4. If we receive email encrypted to our public key(whether other party verified it or not),
+we don't have any proof that's the person we are talking to. Anyone can send encrypted
+email to us, also email can be compromised or mail service might not check sender that well.
+If we don't have this persons keys verified we can't even check anything. (Signs or encryptions)
+
+3. Even though this is far from perfect, if there are good sources where you can verify
+fingerprint and the key, it should be relatively safe to import the key. (e.g. Keybase + github)
+Even though, verifying them in person is recommended. It's probably good idea to reduce trust
+level in this case.
+
+2. if you have common link in trust chains (Web of trust), than you can assert
+that it was verified by this common person. Unfortunately, someone can sign other peoples
+keys without veriying, so you need to be careful who you are getting linked with. If you
+don't trust this common link (It should not be the link in the first place), you better verify
+it yourself somehow.
+
+1. If you can meet in person, that's the best case scenario. You both can exchange fingerprints of
+each others keys(Maybe print it on paper and exchange papers :)) and then verify it against
+downloaded pubkey.
+
+*If there are many of you, you can have [Keysigning Party][futureboy-keysigning-party]*
+
+
+### Sign Keys
+We mentioned in Web of trust that it's possible to sign others keys and use
+that as proof for our direct links that we have verified it. For that you need
+to sign the key and publish to the key servers.
+This is called certifying and can only be done using our Master Key.
+
+When signing keys, you can either sign signature publicly and publish it to the keyservers,
+meaning you publicly announce that you have verified this key and can be trusted OR you
+can only sign this key locally, so gpg knows how to treat it but you don't want others to
+depend on your signature.
 
 ### Key servers
 > Don't trust, verify
@@ -655,20 +751,22 @@ via web of trust, or in worst case using some publicly published places.
 it will get merged with existing information, so you need to always revoke keys that are
 either compromised or lost. (not using anymore)
   - Before sending encrypted information to someone else or verifying signatures 
-  fetch updates to those keys, so you can get revocation information in time. (`gpg --refresh-keys`)
+fetch updates to those keys, so you can get revocation information in time. (`gpg --refresh-keys`).
+Check privacy issues with `refresh-keys` below.
 
 #### Key servers and privacy
 In order to have privacy with key refreshes, so you don't reveal all the relationships you have
 at once, you can use tools like `parcimonie` daemon that will slowly refresh keys over `tor`
 (Slowly in order not to leak your identity).
 
-## References:
+## References
 *Note: some of these links use `gpg v1` and flags, outputs or key choices might not match.*
 
   1. [Allow s2k options for gpg --export-secret-key][gnupg-export-issue]
   2. [Subkeys - Debian Wiki][debian]
   3. [Always Sign Your PGP Public Key][always-sign]
   4. [Transforming your master key into your laptop keypair][perfect-keypair]
+  5. [Subkey cross certify][gpg-cross-certify]
 
   - [GnuPG][gnupg]
   - [GnuPG docs][gnupg-docs]
@@ -680,15 +778,17 @@ at once, you can use tools like `parcimonie` daemon that will slowly refresh key
   - [GPG Tutorial][futureboy]
   - [Generating the perfect gpg keypair][perfect-keypair]
 
-## TODO:
+## TODO
   - Email and gpg best practices. (maybe include several tools with popular mail clients)
   - Importing Keys.
     - importing migrated keys.
   - Verification Process.
+  - More about signing other keys.
   - Signing and Encryption best practices.
   - Authentication keys
     - Authentication with OpenSSH
   - Exploring existing keys and pgp packets.
+  - Anonymous Security Disclosures
 
 
 [gnupg]: https://www.gnupg.org/
@@ -706,3 +806,5 @@ at once, you can use tools like `parcimonie` daemon that will slowly refresh key
 [perfect-keypair-master]: https://alexcabal.com/creating-the-perfect-gpg-keypair#transforming-your-master-keypair-into-your-laptop-keypair
 [gpg-privacy-handbook]: https://www.gnupg.org/gph/en/manual.html
 [futureboy-migrating]: https://futureboy.us/pgp.html#Migrating
+[gpg-cross-certify]: https://www.gnupg.org/faq/subkey-cross-certify.html
+[futureboy-keysigning-party]: https://futureboy.us/pgp.html#KeysigningParty
