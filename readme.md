@@ -27,16 +27,17 @@
       - [Leave subkeys only](#leave-subkeys-only-sup4perfect-keypair-mastersup)
     - [Revocation Certificate for a key](#revocation-certificate-for-a-key)
     - [Backing up](#backing-up)
-  - [Migrating to new keys](#migrating-to-new-keys)
-    - [Reasons](#reasons)
-    - [Steps](#steps)
-    - [Scenarios](#scenarios)
   - [Importing keys](#importing-keys)
     - [Web of trust](#web-of-trust)
     - [Verifying keys](#verifying-keys)
     - [Sign Keys](#sign-keys)
     - [Key servers](#key-servers)
       - [Key servers and privacy](#key-servers-and-privacy)
+  - [Migrating to new keys](#migrating-to-new-keys)
+    - [Reasons](#reasons)
+    - [Steps](#steps)
+    - [Scenarios](#scenarios)
+  - [Importing migrated key](#importing-migrated-key)
   - [References](#references)
   - [TODO](#todo)
 
@@ -597,54 +598,6 @@ You can use encrypted external devices that are not used for anything else,
 Or print them on paper and store somewhere safe.
 *Note: It will be error-prone to type that key back in.*
 
-## Migrating to new keys
-### Reasons
-There are several reasons you might want to move to new keys:
-  1. You lost your master key or forgot the passphrase.
-  2. You think your master key might be compromised. (or know for sure)
-  3. You want to change structure or algorithms of your keys.
-  4. other reasons.?
-
-### Steps
-Steps<sup>[[5]][futureboy-migrating]</sup> (See scenarios below):
-  1. Generate new keys and revocation certificate.
-  2. Make new key default key. (Change gpg.conf default-key)
-  3. Sign new key with old key. (`gpg --default-key oldkeyid newkeyid`)
-     - `gpg -u oldkeyid --edit-key newkeyid`
-     - `gpg> sign`
-  4. (opt) Trust old keys signatures.
-     - `gpg --edit-key` (we already changed default key)
-     - `gpg> trust`
-  5. Communicate your update to your friends with signed message, using old key.
-  6. Revoke old key -- If people send you encrypted data and there's a chance
-they don't know that key was revoked (e.g. they don't update keys from key servers.),
-you wont be able to decrypt that data, so you might want to keep it alive for some time,
-and communicate key updates well.
-  7. Disable your old keys, because some services might still use first secret key
-that is available in the keychain.
-     - `gpg --edit-key keyid`
-     - `gpg> disable`
-
-### Scenarios
-If you lost or your key got compromised you can't use master key anymore and you **must**
-revoke key right away. Unfortunately, you will have to start creating Web of Trust and prove
-your identity from scratch.
-  - `gpg --import certificate.rev`  
-
-If reason is #1(lost), you can't do step #3 (sign new key) and you have to communicate
-that you messed up, doing all other steps.
-
-But if your key got compromised(#2), you should not do #3 and #4, you **must** revoke
-key right away and be done with it. If someone has your key, they can sign new keys
-as well as do everything else basically. (It's pretty hard to get it compromised when ssd
-is encrypted and key is encrypted -- but still possible)
-
-In other cases you can follow all the steps.
-
-**Note: if your keys got compromised, it gives full capabilities to the attacker.
-Attack will also be able to decrypt all your past messages as well as new ones encrypted
-to the same encryption keys. As well as sign new keys or messages and so on.**
-
 ## Importing keys
 If you want to communicate with someone or make sure you can verify messages
 signed by them, you need to import keys necessary
@@ -760,6 +713,81 @@ In order to have privacy with key refreshes, so you don't reveal all the relatio
 at once, you can use tools like `parcimonie` daemon that will slowly refresh keys over `tor`
 (Slowly in order not to leak your identity).
 
+## Migrating to new keys
+### Reasons
+There are several reasons you might want to move to new keys:
+  1. You lost your master key or forgot the passphrase.
+  2. You think your master key might be compromised. (or know for sure)
+  3. You want to change structure or algorithms of your keys.
+  4. other reasons.?
+
+### Steps
+Steps<sup>[[5]][futureboy-migrating]</sup> (See scenarios below):
+  1. Generate new keys and revocation certificate.
+  2. Make new key default key. (Change gpg.conf default-key)
+  3. Sign new key with old key. (`gpg --default-key oldkeyid newkeyid`)
+     - `gpg -u oldkeyid --edit-key newkeyid`
+     - `gpg> sign`
+  4. (opt) Trust old keys signatures.
+     - `gpg --edit-key` (we already changed default key)
+     - `gpg> trust`
+  5. Communicate your update to your friends with signed message, using old key.
+  6. Revoke old key -- If people send you encrypted data and there's a chance
+they don't know that key was revoked (e.g. they don't update keys from key servers.),
+you wont be able to decrypt that data, so you might want to keep it alive for some time,
+and communicate key updates well.
+  7. Disable your old keys, because some services might still use first secret key
+that is available in the keychain.
+     - `gpg --edit-key keyid`
+     - `gpg> disable`
+
+### Scenarios
+If you lost or your key got compromised you can't use master key anymore and you **must**
+revoke key right away. Unfortunately, you will have to start creating Web of Trust and prove
+your identity from scratch.
+  - `gpg --import certificate.rev`  
+
+If reason is #1(lost), you can't do step #3 (sign new key) and you have to communicate
+that you messed up, doing all other steps.
+
+But if your key got compromised(#2), you should not do #3 and #4, you **must** revoke
+key right away and be done with it. If someone has your key, they can sign new keys
+as well as do everything else basically. (It's pretty hard to get it compromised when ssd
+is encrypted and key is encrypted -- but still possible)
+
+In other cases you can follow all the steps.
+
+**Note: if your keys got compromised, it gives full capabilities to the attacker.
+Attack will also be able to decrypt all your past messages as well as new ones encrypted
+to the same encryption keys. As well as sign new keys or messages and so on.**
+
+## Importing migrated key
+
+Whenever you migrate to your new key and you still have access to the master key and it was not
+compromised you can sign new key with the old one and publish it. It should make migration much
+easier. Others can see that you revoked key because you just moved on to new keys and fetch
+those new keys. You can verify that new key is signed by old key. Unfortunately, there's no
+guarantee that it was not compromised and attacker was not the one to revoke key.
+So the best option is to verify it with the owner, that the key was updated. Ideally,
+one who revokes is in charge of communicating what happened to their keys.
+
+If it was not compromised, you can simply fetch new key and verify that it was signed by old key.
+Or send it via email.
+
+You can import them same way you would import new keys, 
+
+To summurize:
+  - Verify new keys with the owner.
+  - Import new key(s)
+    - `gpg --import` if you have file.
+    - `gpg --recv-keys` if you have fingerprint.
+    - `gpg --search-keys` if you need to look it up in key servers.
+  - verify that new key is signed by old key. (if it was not compromised)
+    - [Verify Key](#verifying-keys)
+  - Sign the new key. (if you had older one signed that is)
+    - Send signed key or upload to key servers
+  - disable or delete old keys
+
 ## References
 *Note: some of these links use `gpg v1` and flags, outputs or key choices might not match.*
 
@@ -780,17 +808,11 @@ at once, you can use tools like `parcimonie` daemon that will slowly refresh key
   - [Generating the perfect gpg keypair][perfect-keypair]
 
 ## TODO
-  - Email and gpg best practices. (maybe include several tools with popular mail clients)
-  - Importing Keys.
-    - importing migrated keys.
-  - Verification Process.
-  - More about signing other keys.
   - Signing and Encryption best practices.
-  - Authentication keys
-    - Authentication with OpenSSH
   - Exploring existing keys and pgp packets.
   - Anonymous Security Disclosures
-
+  - Authentication keys
+    - Authentication with OpenSSH
 
 [gnupg]: https://www.gnupg.org/
 [gnupg-docs]:  https://www.gnupg.org/documentation/
