@@ -1,23 +1,23 @@
+# GPG Commands
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-- [GPG Commands](#gpg-commands)
-  - [Keys](#keys)
-    - [Create Master Keypair](#create-master-keypair)
-    - [Listing keys](#listing-keys)
-    - [Edit Keys](#edit-keys)
-    - [Sign Key](#sign-key)
-    - [Check Signatures](#check-signatures)
-    - [Default Cert Level](#default-cert-level)
-    - [Delete keys](#delete-keys)
-  - [Data](#data)
-    - [Sign](#sign)
-      - [ClearSign vs sign](#clearsign-vs-sign)
-    - [Verify signature](#verify-signature)
-    - [Encrypt/Decrypt data](#encryptdecrypt-data)
+
+- [Keys](#keys)
+  - [Create Master Keypair](#create-master-keypair)
+  - [Listing keys](#listing-keys)
+  - [Edit Keys](#edit-keys)
+  - [Sign Key](#sign-key)
+  - [Check Signatures](#check-signatures)
+  - [Default Cert Level](#default-cert-level)
+  - [Delete keys](#delete-keys)
+- [Data](#data)
+  - [Sign](#sign)
+    - [ClearSign vs sign](#clearsign-vs-sign)
+  - [Verify signature](#verify-signature)
+  - [Encrypt/Decrypt data](#encryptdecrypt-data)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
-# GPG Commands
 
 Example commands for gpg. For more information you can check GPG `man` page.
 
