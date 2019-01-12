@@ -14,7 +14,7 @@
   - [Testing/sandboxing](#testingsandboxing)
   - [Create Keypairs](#create-keypairs)
       - [Small summary of steps for key generation](#small-summary-of-steps-for-key-generation)
-    - [Why do we need subkeys](#why-do-we-need-subkeys-sup2debiansup)
+    - [Why do we need subkeys](#why-do-we-need-subkeys)
     - [Expiration date](#expiration-date)
     - [Generating Master Key](#generating-master-key)
     - [Add User IDs and subkeys](#add-user-ids-and-subkeys)
@@ -24,7 +24,7 @@
     - [Sign your own keys](#sign-your-own-keys)
     - [Move your master key to safe place](#move-your-master-key-to-safe-place)
       - [Export keys to external device](#export-keys-to-external-device)
-      - [Leave subkeys only](#leave-subkeys-only-sup4perfect-keypair-mastersup)
+      - [Leave subkeys only](#leave-subkeys-only)
     - [Revocation Certificate for a key](#revocation-certificate-for-a-key)
     - [Backing up](#backing-up)
   - [Importing keys](#importing-keys)
@@ -38,6 +38,9 @@
     - [Steps](#steps)
     - [Scenarios](#scenarios)
   - [Importing migrated key](#importing-migrated-key)
+  - [Encryption/Decryption](#encryptiondecryption)
+  - [Additional notes](#additional-notes)
+    - [Anonymous disclosure](#anonymous-disclosure)
   - [References](#references)
   - [TODO](#todo)
 
@@ -47,6 +50,8 @@
 
 This guide shows only one of the setups that is possible with GPG.
 You can have different setups with different algorithms and many other variations.
+
+[List of Commands](./commands.md)
 
 ## Not covered
   - How to install gpg and related software.
@@ -268,7 +273,8 @@ a separate key pair, but associated with your main key pair.*
   - Remove primary key from device, move it to safer place.
   - Move rest of keys to other devices.
 
-### Why do we need subkeys <sup>[[2]][debian]</sup>
+### Why do we need subkeys
+ <sup>[[2]Debian Wiki][debian]</sup>
 A primary key helps you keep your identity safe. You need to make sure that your Master private key
 is extremeley secure, it can be kept mostly offline because you should not need to use it a lot. It should
 have only certifying capabilities, where you sign your subkeys and other people's pubkeys.
@@ -611,7 +617,8 @@ e.g.
 In case you forget your passphrase you should also back up a revocation certificate,
 so you can revoke them later.
 
-#### Leave subkeys only <sup>[[4]][perfect-keypair-master]</sup>
+#### Leave subkeys only
+<sup>[[4]Perfect Keypair][perfect-keypair-master]</sup>
   - Export secret subkeys only (they will be encrypted by default),
 but you can make sure they are only stored in RAM using ramfs.
   - `gpg --export-secret-subkeys uid or fingerprint > /tmp/gpg/key.asc` (be it normal or ramfs dir)
@@ -707,8 +714,9 @@ downloaded pubkey.
 *If there are many of you, you can have [Keysigning Party][futureboy-keysigning-party]*.
 
 
-### Sign Keys
+### Sign Keys / Certifying
 We mentioned in Web of Trust that it's possible to sign others' keys and use
+
 that as proof for our direct links that we have verified it. For that you need
 to sign the key and publish to the key servers.
 This is called certifying and can only be done using our Master Key.
@@ -717,6 +725,15 @@ When signing keys, you can either create a signature publicly and publish it to 
 meaning you publicly announce that you have verified this key and it can be trusted OR you
 can only sign this key locally, so gpg knows how to treat it but you don't want others to
 depend on your signature.
+
+When making a key signature, you can specify certification level. By default `0` will be used.
+You can set default-cert-level or use `--ask-cert-level`.
+
+You can also set expiration time for you key signature. Use default-cert-expire or use
+`--ask-cert-expire`.
+
+You could also add Policy URL and notation to add additional information about your certificate.
+e.g. If you want to provide policy used when signing key. (Check `--cert-policy-url`)
 
 ### Key servers
 > Don't trust, verify
@@ -823,6 +840,31 @@ To summarize:
     - Send signed key or upload to key servers
   - disable or delete old keys
 
+## Encryption/Decryption
+
+When encrypting something for someone, you will need to have their keys imported.
+You can send to multiple people at once. Before sending email you may need to
+verify what are the preferences they have set up, because in case of multi person
+encryption it will reduce to most common one (which in turn can weaken security).
+
+Note: Make sure you plaintext version of encrypted message.  
+Note: If you want to be able to decrypt data when encrypting (either to one person
+or group of people), you need to specify yourself as recipient.  
+Note: Always check signatures whenever you receive encrypted email. Because otherwise
+you can't be sure where its coming form. (And use signatures yourself)
+
+## Certifying
+
+Certifying is almost same as signing another public key. 
+
+## Additional notes
+
+### Anonymous disclosure
+Sometimes you might want to keep your identity private, for some time. You can generate new key
+pair and use that without disclosing your original identity. After some time you can easily
+prove that you have the private key of temporary keypair by decrypting some data encrypted
+to that public key.
+
 ## References
 *Note: some of these links use `gpg v1` and flags, outputs or key choices might not match.*
 
@@ -832,6 +874,7 @@ To summarize:
   4. [Transforming your master key into your laptop keypair][perfect-keypair]
   5. [Subkey cross certify][gpg-cross-certify]
 
+  - [GPG Tutorial][futureboy]
   - [GnuPG][gnupg]
   - [GnuPG docs][gnupg-docs]
   - [GnuPG configuration options][gnupg-configs]
@@ -839,11 +882,9 @@ To summarize:
   - [GnuPG FAQ][gpg-faq]
   - [GnuPG Message Format - RFC 4880][gpg-message-format-rfc]
   - [GnuPG Key Management][gpg-key-management]
-  - [GPG Tutorial][futureboy]
   - [Generating the perfect gpg keypair][perfect-keypair]
 
 ## TODO
-  - Signing and Encryption best practices.
   - Exploring existing keys and pgp packets.
   - Anonymous Security Disclosures
   - Authentication keys
@@ -856,13 +897,14 @@ To summarize:
 [debian]: https://wiki.debian.org/Subkeys?action=show&redirect=subkeys
 [gpg-message-format-rfc]: https://tools.ietf.org/html/rfc4880
 [gpg-faq]: https://www.gnupg.org/faq/gnupg-faq.html
-[futureboy]: https://futureboy.us/pgp.html#GoodEncryptionPractices
 [gnupg-export-issue]: https://dev.gnupg.org/T1800
 [gpg-key-management]: https://www.gnupg.org/gph/en/manual/c235.html
-[always-sign]: http://www.heureka.clara.net/sunrise/pgpsign.htm
+[gpg-privacy-handbook]: https://www.gnupg.org/gph/en/manual.html
+[gpg-cross-certify]: https://www.gnupg.org/faq/subkey-cross-certify.html
 [perfect-keypair]: https://alexcabal.com/creating-the-perfect-gpg-keypair
 [perfect-keypair-master]: https://alexcabal.com/creating-the-perfect-gpg-keypair#transforming-your-master-keypair-into-your-laptop-keypair
-[gpg-privacy-handbook]: https://www.gnupg.org/gph/en/manual.html
+[futureboy]: https://futureboy.us/pgp.html
 [futureboy-migrating]: https://futureboy.us/pgp.html#Migrating
-[gpg-cross-certify]: https://www.gnupg.org/faq/subkey-cross-certify.html
 [futureboy-keysigning-party]: https://futureboy.us/pgp.html#KeysigningParty
+[futureboy-good-encryption]: https://futureboy.us/pgp.html#GoodPractices
+[always-sign]: http://www.heureka.clara.net/sunrise/pgpsign.htm
