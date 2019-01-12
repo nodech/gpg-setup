@@ -850,12 +850,6 @@ to that public key.
   - [GnuPG Key Management][gpg-key-management]
   - [Generating the perfect gpg keypair][perfect-keypair]
 
-## TODO
-  - Exploring existing keys and pgp packets.
-  - Anonymous Security Disclosures
-  - Authentication keys
-    - Authentication with OpenSSH
-
 [gnupg]: https://www.gnupg.org/
 [gnupg-docs]:  https://www.gnupg.org/documentation/
 [gentoo-hack]: https://archives.gentoo.org/gentoo-announce/message/dc23d48d2258e1ed91599a8091167002
