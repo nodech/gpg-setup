@@ -1,7 +1,5 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
 - [GPG Commands](#gpg-commands)
   - [Keys](#keys)
     - [Create Master Keypair](#create-master-keypair)
@@ -15,6 +13,7 @@
     - [Sign](#sign)
       - [ClearSign vs sign](#clearsign-vs-sign)
     - [Verify signature](#verify-signature)
+    - [Encrypt/Decrypt data](#encryptdecrypt-data)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
