@@ -51,6 +51,8 @@
 This guide shows only one of the setups that is possible with GPG. Actually
 you can have different setup with different algorithms and many other variations.
 
+[List of Commands](./commands.md)
+
 ## Not covered
   - How to install gpg and related software.
   - gpg-agent usage and configuration.
@@ -678,7 +680,8 @@ downloaded pubkey.
 *If there are many of you, you can have [Keysigning Party][futureboy-keysigning-party]*.
 
 
-### Sign Keys
+### Sign Keys - Certifying
+
 We mentioned in Web of trust that it's possible to sign others keys and use
 that as proof for our direct links that we have verified it. For that you need
 to sign the key and publish to the key servers.
@@ -688,6 +691,15 @@ When signing keys, you can either sign signature publicly and publish it to the 
 meaning you publicly announce that you have verified this key and can be trusted OR you
 can only sign this key locally, so gpg knows how to treat it but you don't want others to
 depend on your signature.
+
+When making a key signature, you can specify certification level. By default `0` will be used.
+You can set default-cert-level or use `--ask-cert-level`.
+
+You can also set expiration time for you key signature. Use default-cert-expire or use
+`--ask-cert-expire`.
+
+You could also add Policy URL and notation to add additional information about your certificate.
+e.g. If you want to provide policy used when signing key. (Check `--cert-policy-url`)
 
 ### Key servers
 > Don't trust, verify
@@ -806,6 +818,10 @@ Note: If you want to be able to decrypt data when encrypting (either to one pers
 or group of people), you need to specify yourself as recipient.  
 Note: Always check signatures whenever you receive encrypted email. Because otherwise
 you can't be sure where its coming form. (And use signatures yourself)
+
+## Certifying
+
+Certifying is almost same as signing another public key. 
 
 ## Additional notes
 
