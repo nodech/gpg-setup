@@ -122,12 +122,12 @@ Digests (One-way hash function. Irreversivbly and deterministically converts dat
 
 Compressions (Losslessly make data smaller)
 
-| abbrev. | name        |
-| --      | --          |
-| Z0      | MD5         |
-| Z1      | SHA1        |
-| Z2      | RIPEMD160   |
-| Z3      | *reserved.* |
+| abbrev. | name  |
+| --      | --    |
+| Z0      | NONE  |
+| Z1      | ZIP   |
+| Z2      | ZLIB  |
+| Z3      | BZIP2 |
 
 AEAD (Ciphers with confidentiality and authentication)
 
