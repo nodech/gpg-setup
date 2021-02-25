@@ -3,6 +3,9 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
+- [Useful commands](#useful-commands)
+  - [Inspect packets](#inspect-packets)
+  - [Restart gpg-agent](#restart-gpg-agent)
 - [Keys](#keys)
   - [Create Master Keypair](#create-master-keypair)
   - [Listing keys](#listing-keys)
@@ -16,6 +19,7 @@
     - [ClearSign vs sign](#clearsign-vs-sign)
   - [Verify signature](#verify-signature)
   - [Encrypt/Decrypt data](#encryptdecrypt-data)
+    - [Symmetric Encryption](#symmetric-encryption)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -29,6 +33,7 @@ Example commands for gpg. For more information you can check GPG `man` page.
 
 ### Restart gpg-agent
 GPG-Agent can store passphrases in memory.
+  - gpg-connect-agent reloadagent /bye
   - gpgconf --kill gpg-agent
 
 ## Keys
