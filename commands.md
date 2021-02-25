@@ -21,6 +21,16 @@
 
 Example commands for gpg. For more information you can check GPG `man` page.
 
+## Useful commands
+
+### Inspect packets
+  `pgpdump` can be used to inspect information from encrypted/signed packets.
+  - e.g. `pgpdump encrypted.pgp`
+
+### Restart gpg-agent
+GPG-Agent can store passphrases in memory.
+  - gpgconf --kill gpg-agent
+
 ## Keys
 ### Create Master Keypair 
 Generate Master keypair
@@ -194,3 +204,9 @@ the message. Receiver will have to iterate over it's private encryption keys to 
 
 Decrypt:
   - `gpg --decrypt data.gpg > decrypted`
+
+#### Symmetric Encryption
+By default AES128 + Sha1 will be used.
+  - Encrypt: gpg --symmetric --cipher-algo AES256 (Or different algo) file
+  - Encrypt and sign: gpg --symetric --sign --cipher-algo AES256 file
+  - Decrypt: gpg --decrypt file.asc
