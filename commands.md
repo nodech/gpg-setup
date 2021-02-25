@@ -33,8 +33,8 @@ Example commands for gpg. For more information you can check GPG `man` page.
 
 ### Restart gpg-agent
 GPG-Agent can store passphrases in memory.
-  - gpg-connect-agent reloadagent /bye
-  - gpgconf --kill gpg-agent
+  - `gpg-connect-agent reloadagent /bye`
+  - `gpgconf --kill gpg-agent`
 
 ## Keys
 ### Create Master Keypair 
@@ -211,7 +211,8 @@ Decrypt:
   - `gpg --decrypt data.gpg > decrypted`
 
 #### Symmetric Encryption
-By default AES128 + Sha1 will be used.
-  - Encrypt: gpg --symmetric --cipher-algo AES256 (Or different algo) file
-  - Encrypt and sign: gpg --symetric --sign --cipher-algo AES256 file
-  - Decrypt: gpg --decrypt file.asc
+By default AES128 + Sha1 will be used, or configs defined in gpg.conf.
+  - Encrypt: `gpg --symmetric --cipher-algo AES256 file`
+  - Encrypt (default or gpg.conf): `gpg --symmetric file`
+  - Encrypt and sign: `gpg --symetric --sign --cipher-algo AES256 filename``
+  - Decrypt: `gpg --decrypt file.asc`
